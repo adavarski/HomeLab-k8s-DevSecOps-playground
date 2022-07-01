@@ -98,6 +98,11 @@ spec:
 
 ```
 
+Kubernetes data flow diagram (trust boundaries):
+
+<img src="pictures/trustboundaries.png?raw=true" width="800">
+
+
 ### Setup Pentest laptop (docker to build/push some image to JFfrog docker registry)
 
 Note: [Install ansible, packer, terraform, kubectl, helm, etc.: setup_laptop_ubuntu.sh](./utils/setup_laptop_ubuntu.sh)
