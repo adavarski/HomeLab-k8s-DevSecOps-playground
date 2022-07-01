@@ -1,0 +1,6 @@
+---
+- name: Preconfigure a Kubernetes node
+  hosts: all
+  become: yes
+  roles:
+    - k8s_node

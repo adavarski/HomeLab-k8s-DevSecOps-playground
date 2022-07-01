@@ -1,0 +1,9 @@
+apiVersion: v2
+name: k8s-dash
+description: Kubernetes Dashboard with admin user
+version: 0.1.0
+dependencies:
+  - name: kubernetes-dashboard
+    version: 5.2.0
+    repository: https://kubernetes.github.io/dashboard
+appVersion: v2.5.0

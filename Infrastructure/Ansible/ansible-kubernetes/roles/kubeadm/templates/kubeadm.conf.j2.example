@@ -1,0 +1,54 @@
+---
+kind: InitConfiguration
+apiVersion: kubeadm.k8s.io/v1beta2
+localAPIEndpoint:
+  advertiseAddress: {{ k8s_ip }}
+  bindPort: {{ k8s_api_bind_port }}
+nodeRegistration:
+  name: {{ inventory_hostname }}
+  criSocket: /run/containerd/containerd.sock
+  taints:
+    - key: "kubeadmNode"
+      value: "master"
+      effect: "NoSchedule"
+  node-ip: {{ k8s_ip }}
+---
+kind: ClusterConfiguration
+apiVersion: kubeadm.k8s.io/v1beta2
+etcd:
+  local:
+    dataDir: /var/lib/etcd
+    peerCertSANs:
+      - "{{ k8s_api_host }}"
+      - "{{ k8s_control_plane_host }}"
+      - localhost
+      - 127.0.0.1
+networking:
+  dnsDomain: {{ k8s_dns_domain }}
+  serviceSubnet: {{ service_pool_ipv4_cidr }}
+  podSubnet: {{ pod_pool_ipv4_cidr }}
+kubernetesVersion: 1.23.4
+controlPlaneEndpoint: {{ k8s_control_plane_host }}:{{ k8s_control_plane_port }}
+apiServer:
+  timeoutForControlPlane: 4m0s
+  certSANs:
+    - "{{ k8s_api_host }}"
+    - "{{ k8s_control_plane_host }}"
+    - localhost
+    - 127.0.0.1
+  extraArgs:
+    authorization-mode: "Node,RBAC"
+    anonymous-auth: "true"
+controllerManager: {}
+scheduler: {}
+dns:
+  type: CoreDNS
+certificatesDir: /etc/kubernetes/pki
+imageRepository: k8s.gcr.io
+useHyperKubeImage: false
+clusterName: {{ k8s_cluster_name }}
+---
+kind: KubeletConfiguration
+apiVersion: kubelet.config.k8s.io/v1beta1
+cgroupDriver: systemd
+serverTLSBootstrap: true

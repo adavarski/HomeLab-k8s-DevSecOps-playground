@@ -1,0 +1,7 @@
+---
+new_hostname: k8s-node
+cloud_provider: proxmox
+containerd_version: 1.4.12-1
+kubernetes_version: 1.23.4-00
+# list of Docker registries that will be contacted over HTTP
+http_docker_registries: []

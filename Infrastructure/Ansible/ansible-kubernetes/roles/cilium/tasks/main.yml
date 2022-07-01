@@ -1,0 +1,37 @@
+--- 
+- name: persist br_netfilter module
+  copy:
+    dest: /etc/sysctl.d/99-override_cilium_rp_filter.conf
+    content: |-
+      net.ipv4.conf.lxc*.rp_filter = 0
+      net.ipv4.conf.all.rp_filter = 0
+      net.ipv4.conf.default.rp_filter = 0
+    mode: 0644
+  notify:
+    - restart systemd-sysctl
+
+- name: flush handlers
+  meta: flush_handlers
+
+- name: check that kernel version is above or at 4.9.17
+  fail:
+    msg: kernel version must be above or at 4.9.17
+  when: ansible_kernel is version('4.9.17','<')
+
+- name: upload the cilium yml file
+  template:
+    src: cilium.yml.j2
+    dest: /root/cilium.yml
+
+- name: apply the cilium configuration
+  shell: kubectl apply -f /root/cilium.yml
+  register: kubectloutput
+  changed_when: "'created' in kubectloutput.stdout or 'configured' in kubectloutput.stdout or 'deleted' in kubectloutput.stdout"
+  run_once: True
+
+- name: install cilium cli
+  unarchive:
+    src: https://github.com/cilium/cilium-cli/releases/latest/download/cilium-linux-amd64.tar.gz
+    dest: /usr/local/bin
+    remote_src: yes
+  when: inventory_hostname in groups['masters']

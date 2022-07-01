@@ -1,0 +1,11 @@
+apiVersion: v2
+name: calico-tigera
+description: Wrapper for Tigera Operator
+version: 0.1.0
+kubeVersion: v1.23.4
+dependencies:
+  - name: tigera-operator
+    version: v3.22
+    repository: https://projectcalico.docs.tigera.io/charts
+    alias: tigeraOperator
+appVersion: v3.22

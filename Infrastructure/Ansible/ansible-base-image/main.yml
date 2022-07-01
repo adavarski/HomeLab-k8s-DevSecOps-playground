@@ -1,0 +1,6 @@
+---
+- name: Preconfigure base OS image
+  hosts: all
+  become: yes
+  roles:
+    - base

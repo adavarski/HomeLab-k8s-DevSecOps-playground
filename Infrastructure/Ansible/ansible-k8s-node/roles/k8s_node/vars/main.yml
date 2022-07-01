@@ -1,0 +1,11 @@
+---
+# the filenames should match those in ../files
+second_interface_filename: 02-interface.yaml
+modules_filename: containerd.conf
+docker_key_location: /usr/share/keyrings/docker-archive-keyring.gpg
+kubernetes_key_location: /usr/share/keyrings/kubernetes-archive-keyring.gpg
+swap_file: /swap.img
+kubernetes_packages:
+  - kubelet
+  - kubeadm
+  - kubectl

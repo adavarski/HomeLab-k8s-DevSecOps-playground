@@ -1,0 +1,9 @@
+[prox_qa]
+k8s-qa-master-5nd4 ansible_host=10.250.0.227
+k8s-qa-master-1db4 ansible_host=10.250.0.208
+k8s-qa-master-avkd ansible_host=10.250.0.209
+k8s-qa-worker-08hb ansible_host=10.250.0.210
+k8s-qa-worker-ou9o ansible_host=10.250.0.228
+k8s-qa-worker-kfe1 ansible_host=10.250.0.211
+k8s-qa-worker-dvbq ansible_host=10.250.0.203
+k8s-qa-worker-0ta9 ansible_host=10.250.0.204

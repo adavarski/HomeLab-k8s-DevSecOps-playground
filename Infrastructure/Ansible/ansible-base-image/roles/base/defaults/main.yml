@@ -1,0 +1,3 @@
+---
+new_hostname: ubuntu-base
+cloud_provider: proxmox

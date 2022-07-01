@@ -1,0 +1,43 @@
+elasticsearch:
+  clusterName: efk-elasticsearch
+  esConfig:
+    elasticsearch.yml: |
+      xpack.security.enabled: false
+  volumeClaimTemplate:
+    storageClassName: ceph
+    resources:
+      requests:
+        storage: 100Gi
+  service:
+    type: NodePort
+    nodePort: 30922
+
+kibana:
+  enabled: true
+  elasticsearchHosts: http://efk-elasticsearch-master:9200
+  service:
+    type: NodePort
+    nodePort: 30561
+
+logRouter:
+  nameOverride: log-router
+  rbac:
+    create: true
+  image:
+    tag: 1.16.2
+    repository: registry.example.com/system-docker/kube-fluentd-operator-xpack
+  extraVolumes:
+    - name: fluentd-template-volume
+      configMap:
+        name: fluentd-template
+  fluentd:
+    extraVolumeMounts:
+      - name: fluentd-template-volume
+        mountPath: /fluentd/etc/templates/
+        readOnly: true
+  reloader:
+    extraVolumeMounts:
+      - name: fluentd-template-volume
+        mountPath: /fluentd/etc/templates/
+        readOnly: true
+

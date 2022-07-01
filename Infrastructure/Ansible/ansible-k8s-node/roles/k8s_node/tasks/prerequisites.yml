@@ -1,0 +1,33 @@
+---
+- name: Disable swap (if configured).
+  command: swapoff -a
+
+- name: Ensure swap file doesn't exist (if configured).
+  file:
+    path: "{{ swap_file }}"
+    state: absent
+
+- name: Copy modules config
+  ansible.builtin.copy:
+    # the name of the file is obtained from a variable
+    src: '{{ modules_filename }}'
+    dest: /etc/modules-load.d
+    mode: '0644'
+  notify: Load modules
+
+- name: Copy sysctl config
+  ansible.builtin.copy:
+    src: 90-kubernetes-cri.conf
+    dest: /etc/sysctl.d
+    mode: '0644'
+  notify: Reload system variables
+
+- name: Flush handlers now
+  meta: flush_handlers
+
+- name: Install required packages
+  ansible.builtin.apt:
+    update_cache: yes
+    name:
+      - apt-transport-https
+      - ca-certificates

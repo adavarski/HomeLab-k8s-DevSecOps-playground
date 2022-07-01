@@ -1,0 +1,28 @@
+ingress-nginx:
+  controller:
+    affinity:
+      podAntiAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 1
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                  - key: app.kubernetes.io/name
+                    operator: In
+                    values:
+                    - ingress-nginx
+                  - key: app.kubernetes.io/instance
+                    operator: In
+                    values:
+                    - nginx
+                  - key: app.kubernetes.io/component
+                    operator: In
+                    values:
+                    - controller
+              topologyKey: kubernetes.io/hostname
+    ingressClassResource:
+      enabled: true
+    replicaCount: 2
+    service:
+      externalTrafficPolicy: Local
+      type: NodePort

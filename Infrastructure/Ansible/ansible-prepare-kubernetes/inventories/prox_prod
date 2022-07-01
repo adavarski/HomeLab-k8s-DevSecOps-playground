@@ -1,0 +1,11 @@
+[prox_prod]
+k8s-prod-master-9qhi ansible_host=10.250.0.217
+k8s-prod-master-cwye ansible_host=10.250.0.234
+k8s-prod-master-r48a ansible_host=10.250.0.218
+k8s-prod-worker-p33w ansible_host=10.250.0.219
+k8s-prod-worker-hgip ansible_host=10.250.0.223
+k8s-prod-worker-of8u ansible_host=10.250.0.235
+k8s-prod-worker-e0ej ansible_host=10.250.0.236
+k8s-prod-worker-t45a ansible_host=10.250.0.202
+k8s-prod-worker-q9ir ansible_host=10.250.0.201
+k8s-prod-worker-4cro ansible_host=10.250.0.225

@@ -1,0 +1,27 @@
+---
+- name: Copy Docker GPG key
+  ansible.builtin.copy:
+    src: '{{ docker_key_location.rsplit("/", 1)[1] }}'
+    dest: '{{ docker_key_location.rsplit("/", 1)[0] }}'
+    mode: '0644'
+
+- name: Copy Docker repository from template
+  ansible.builtin.template:
+    src: docker.list
+    dest: /etc/apt/sources.list.d/
+    mode: '0644'
+
+- name: Install containerd.io
+  ansible.builtin.apt:
+    update_cache: yes
+    name: containerd.io={{ containerd_version }}
+
+- name: Copy containerd config from template
+  ansible.builtin.template:
+    src: config.toml
+    dest: /etc/containerd
+    mode: '0644'
+  notify: Restart containerd
+
+- name: Flush handlers now
+  meta: flush_handlers

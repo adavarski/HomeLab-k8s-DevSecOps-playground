@@ -1,0 +1,6 @@
+---
+user_auth_key: |-
+  ssh-rsa AAAAB0UQM5qChSRQ3o8Oo/x davar@carbon
+# the filename should match the one in ../files
+interface_filename: 01-interface.yaml
+timestamp_comment: '# history timestamping'

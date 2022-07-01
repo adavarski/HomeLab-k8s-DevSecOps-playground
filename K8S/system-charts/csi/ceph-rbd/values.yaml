@@ -1,0 +1,14 @@
+secretName: ceph-rbd-secret
+secret:
+  userID:
+  userKey:
+    encrypted:
+storageClassName: ceph
+cephPoolName: ceph-k8s
+rbdNamePrefix: k8s-
+encryptionKey:
+
+cephCsiRbd:
+  nameOverride: ceph-csi-rbd
+  csiConfig: []
+  encryptionKMSConfig: {}

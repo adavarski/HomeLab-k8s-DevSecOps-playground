@@ -1,0 +1,12 @@
+adminUser: dash-admin
+
+kubernetes-dashboard:
+  service:
+    type: NodePort
+    nodePort: 30443
+  metricsScraper:
+    enabled: true
+  metrics-server:
+    enabled: true
+    args:
+      - --kubelet-preferred-address-types=InternalIP

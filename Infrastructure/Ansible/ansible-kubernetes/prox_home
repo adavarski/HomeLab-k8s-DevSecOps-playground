@@ -1,0 +1,7 @@
+[masters]
+kmaster0 ansible_host=10.0.200.18 ansible_port=22 ansible_user=root
+
+[workers]
+kworker0 ansible_host=10.0.200.19 ansible_port=22 ansible_user=root
+kworker1 ansible_host=10.0.200.20 ansible_port=22 ansible_user=root
+

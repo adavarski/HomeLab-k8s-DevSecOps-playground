@@ -1,0 +1,8 @@
+[masters]
+%{ for node_host, node_hostname in node_map_masters ~}
+${node_hostname} ansible_host=${node_host} ansible_port=${ansible_port} ansible_user=${ansible_user}
+%{endfor}
+[workers]
+%{ for node_host, node_hostname in node_map_workers ~}
+${node_hostname} ansible_host=${node_host} ansible_port=${ansible_port} ansible_user=${ansible_user}
+%{endfor}

@@ -1,0 +1,106 @@
+---
+- name: Reflect new hostname in /etc/hosts
+  ansible.builtin.replace:
+    path: /etc/hosts
+    regexp: '(\s+){{ ansible_facts["hostname"] }}(\s+.*)?$'
+    replace: '\1{{ new_hostname }}\2'
+
+- name: Change hostname
+  ansible.builtin.hostname:
+    name: '{{ new_hostname }}'
+
+- name: Find existing netplan config files
+  ansible.builtin.find:
+    paths: /etc/netplan
+  register: find_result
+
+- name: Delete netplan config files
+  ansible.builtin.file:
+    path: '{{ item.path }}'
+    state: absent
+  loop: '{{ find_result.files }}'
+  loop_control:
+    label: '{{ item.path }}'
+  when: item.path is not search(interface_filename)
+
+- name: Copy netplan config
+  ansible.builtin.copy:
+    # the name of the file is obtained from a variable
+    src: '{{ interface_filename }}'
+    dest: /etc/netplan
+    mode: '0644'
+
+- name: Upgrade all packages
+  ansible.builtin.apt:
+    update_cache: yes
+    upgrade: yes
+
+- name: Install Guest agent
+  ansible.builtin.apt:
+    name:
+      - qemu-guest-agent
+  when: cloud_provider == "proxmox"
+
+- name: Install useful tools
+  ansible.builtin.apt:
+    name:
+      - net-tools
+
+- name: Set authorized_key for user
+  ansible.builtin.blockinfile:
+    path: /home/{{ ansible_user }}/.ssh/authorized_keys
+    block: '{{ user_auth_key }}'
+    marker: '# {mark} Ansible added users'
+    create: yes
+    owner: '{{ ansible_user }}'
+    group: '{{ ansible_user }}'
+    mode: 0600
+
+- name: Set authorized_key for root
+  ansible.builtin.blockinfile:
+    path: /root/.ssh/authorized_keys
+    block: '{{ user_auth_key }}'
+    marker: '# {mark} Ansible added users'
+    create: yes
+    owner: root
+    group: root
+    mode: 0600
+
+- name: Disable password authentication
+  ansible.builtin.lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^#?PasswordAuthentication'
+    line: PasswordAuthentication no
+
+- name: Enable history timestamping
+  ansible.builtin.lineinfile:
+    path: /etc/bash.bashrc
+    line: '{{ item }}'
+  loop:
+    - '{{ timestamp_comment }}'
+    - HISTTIMEFORMAT='[%F %T] '
+
+# adds a new line in front of the timestamp block
+- name: Prettify the history timestamping enablement block
+  ansible.builtin.replace:
+    path: /etc/bash.bashrc
+    regexp: '([^\n])[\n]({{ timestamp_comment }})'
+    replace: '\1\n\n\2'
+
+- name: Preseed debconf for cloud-init
+  ansible.builtin.debconf:
+    name: cloud-init
+    question: cloud-init/datasources
+    vtype: multiselect
+    value: NoCloud, None
+  notify:
+    - Remove cloud-init dpkg config
+    - Reconfigure cloud-init
+  when: cloud_provider == "proxmox"
+
+- name: Remove cloud-init installer config
+  ansible.builtin.file:
+    name: /etc/cloud/cloud.cfg.d/99-installer.cfg
+    state: absent
+  notify: Reset cloud-init
+  when: cloud_provider == "proxmox"

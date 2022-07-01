@@ -1,0 +1,5 @@
+---
+k8s_control_plane_host: localhost
+k8s_control_plane_port: 6443
+
+cluster_pool_ipv4_cidr: "10.0.0.0/8"

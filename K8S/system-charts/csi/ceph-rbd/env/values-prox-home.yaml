@@ -1,0 +1,14 @@
+secret:
+  userID: ceph-k8s-home
+  userKey:
+    encrypted: xx9FZuVEgK6rgYYolDV2ncdmXvRLpk/dOWvKEas9L5qwP/gt3/aLu9vrYOcO4eUBgXkP+AcWxr/I1Y6cSFY4Yw==
+cephPoolName: ceph-k8s-home
+rbdNamePrefix: k8s-home-
+
+cephCsiRbd:
+  csiConfig:
+    - clusterID: 68dafb4d-1a41-47ab-a378-987e4db23078
+      monitors:
+        - 10.80.83.4:6789
+        - 10.80.83.6:6789
+        - 10.80.83.8:6789

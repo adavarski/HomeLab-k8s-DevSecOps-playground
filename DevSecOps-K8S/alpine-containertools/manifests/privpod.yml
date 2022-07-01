@@ -1,0 +1,21 @@
+#Simple example of a privileged pod
+apiVersion: v1
+kind: Pod
+metadata:
+  name: privpod
+  labels:
+spec:
+  containers:
+  - name: privpod
+    image: 10.0.200.8:8082/alpine-containertools/alpine-containertools
+    securityContext:
+      privileged: true
+    volumeMounts:
+    - mountPath: /node
+      name: noderoot
+  imagePullSecrets:
+  - name: regcred
+  volumes:
+  - name: noderoot
+    hostPath:
+      path: /

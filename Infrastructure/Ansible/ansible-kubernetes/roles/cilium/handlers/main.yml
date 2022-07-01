@@ -1,0 +1,4 @@
+---
+- name: restart systemd-sysctl
+  shell: systemctl restart systemd-sysctl
+  failed_when: False

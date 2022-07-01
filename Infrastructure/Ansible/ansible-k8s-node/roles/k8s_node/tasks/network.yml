@@ -1,0 +1,8 @@
+---
+- name: Copy netplan config for the second interface
+  ansible.builtin.copy:
+    # the name of the file is obtained from a variable
+    src: '{{ second_interface_filename }}'
+    dest: /etc/netplan
+    mode: '0644'
+  notify: Apply network config

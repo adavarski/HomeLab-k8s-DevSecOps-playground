@@ -1,0 +1,5 @@
+tigeraOperator:
+  installation:
+    calicoNetwork:
+      nodeAddressAutodetectionV4:
+        cidrs:

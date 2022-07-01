@@ -1,0 +1,4 @@
+---
+ansible_user: root
+http_docker_registries:
+  - 10.100.200.17:5000

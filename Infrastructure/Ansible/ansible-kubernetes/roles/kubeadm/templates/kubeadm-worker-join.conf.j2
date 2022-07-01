@@ -1,0 +1,14 @@
+---
+kind: JoinConfiguration
+apiVersion: kubeadm.k8s.io/v1beta2
+discovery:
+  bootstrapToken:
+    token: "{{ joining_token }}"
+    caCertHashes:
+      - "sha256:{{ certificate_hash }}"
+    apiServerEndpoint: {{ k8s_control_plane_host }}:{{ k8s_control_plane_port }}
+nodeRegistration:
+  name: {{ inventory_hostname }}
+  criSocket: /run/containerd/containerd.sock
+  kubeletExtraArgs:
+    node-ip: {{ k8s_ip }}

@@ -1,0 +1,7 @@
+network:
+  version: 2
+  ethernets:
+    ens18:
+      dhcp4: true
+      dhcp4-overrides:
+        use-domains: false

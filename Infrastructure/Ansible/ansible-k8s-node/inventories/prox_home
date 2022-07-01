@@ -1,0 +1,2 @@
+[prox_home]
+k8s-node ansible_host=10.0.200.8

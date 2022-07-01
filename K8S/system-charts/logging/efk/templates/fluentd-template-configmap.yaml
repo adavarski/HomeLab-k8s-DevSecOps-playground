@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  namespace: {{ .Release.Namespace }}
+  name: fluentd-template
+data:
+  fluentd-template.json: |-  
+    {
+      "index_patterns": ["<<pattern>>"],
+      "template": {
+        "settings": {
+          "number_of_shards": "<<shard>>",
+          "number_of_replicas": "<<replica>>"
+        }
+      }
+    }

@@ -1,0 +1,7 @@
+# For future use, and environment specific values
+elasticsearch:
+  extraEnvs:
+    - name: ELASTIC_PASSWORD
+      value: changeme
+    - name: ELASTIC_USERNAME
+      value: elastic

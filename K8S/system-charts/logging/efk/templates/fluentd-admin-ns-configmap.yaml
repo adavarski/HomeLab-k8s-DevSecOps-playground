@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: fluentd-config
+  namespace: {{ .Values.logRouter.adminNamespace }}
+data:
+  fluent.conf: |
+    <plugin es>
+      @type elasticsearch
+      host {{ .Values.elasticsearch.clusterName }}-{{ .Values.elasticsearch.nodeGroup }}
+      port {{ .Values.elasticsearch.httpPort }}
+    </plugin>

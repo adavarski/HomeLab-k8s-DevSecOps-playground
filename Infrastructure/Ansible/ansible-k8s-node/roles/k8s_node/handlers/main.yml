@@ -1,0 +1,28 @@
+---
+- name: Reset cloud-init
+  ansible.builtin.command: cloud-init clean -l
+  when: cloud_provider == "proxmox"
+
+- name: Apply network config
+  ansible.builtin.command: netplan apply
+
+- name: Disable swap
+  ansible.builtin.command: swapoff -a
+
+- name: Delete swap file
+  ansible.builtin.file:
+    path: '{{ swap_file }}'
+    state: absent
+
+- name: Load modules
+  community.general.modprobe:
+    name: '{{ item }}'
+  loop: '{{ lookup("file", modules_filename).splitlines() }}'
+
+- name: Reload system variables
+  ansible.builtin.command: sysctl --system
+
+- name: Restart containerd
+  ansible.builtin.systemd:
+    name: containerd
+    state: restarted

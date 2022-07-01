@@ -1,0 +1,10 @@
+apiVersion: v2
+name: kube-system
+description: metrics-server
+version: 3.8.2
+kubeVersion: v1.23
+dependencies:
+  - name: metrics-server
+    version: 3.8.2
+    repository: https://kubernetes-sigs.github.io/metrics-server/
+appVersion: 0.6.1

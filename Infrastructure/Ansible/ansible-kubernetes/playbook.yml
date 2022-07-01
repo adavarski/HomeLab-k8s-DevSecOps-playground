@@ -1,0 +1,8 @@
+---
+- name: install kubeadm and bootstrap the cluster
+  hosts: all
+  roles:
+    - kubeadm
+    - cilium
+  vars_files:
+    - variables.yml

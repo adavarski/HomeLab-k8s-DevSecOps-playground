@@ -1,0 +1,7 @@
+---
+- ansible.builtin.import_tasks: hostname.yml
+- ansible.builtin.import_tasks: network.yml
+  when: cloud_provider == "proxmox"
+- ansible.builtin.import_tasks: prerequisites.yml
+- ansible.builtin.import_tasks: containerd.yml
+- ansible.builtin.import_tasks: kubernetes.yml

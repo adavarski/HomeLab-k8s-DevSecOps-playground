@@ -1,0 +1,6 @@
+tigeraOperator:
+  installation:
+    calicoNetwork:
+      nodeAddressAutodetectionV4:
+        cidrs:
+          - 10.80.80.0/23

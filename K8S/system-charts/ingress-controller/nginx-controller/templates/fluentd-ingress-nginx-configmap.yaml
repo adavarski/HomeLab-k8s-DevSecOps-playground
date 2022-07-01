@@ -1,0 +1,65 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: fluentd-config
+  namespace: {{ .Release.Namespace }}
+data:
+  fluent.conf: |
+    <match $labels(app_kubernetes_io/component=controller)>
+      @type retag
+      <rule>
+        key log
+        pattern /^\d/
+        tag ingress.access
+      </rule>
+      <rule>
+        key log
+        pattern /^\D/
+        tag ingress.other
+      </rule>
+    </match>
+    
+    <filter $tag(ingress.access)>
+      @type parser
+      reserve_data true
+      hash_value_field log
+      key_name log
+      <parse>
+        @type regexp
+        expression /(?<remote_addr>[^ ]*) (?<proxy_protocol_addr>[^ ]*) (?<remote_user>[^ ]*) \[(?<time>[^\]]*)\] "(?<method>\S+)(?: +(?<request>[^\"]*) +\S*)?" (?<status_code>[^ ]*) (?<body_bytes_sent>[^ ]*) "(?<http_referer>[^\"]*)" "(?<http_user_agent>[^\"]*)" (?<request_length>[^ ]*) (?<request_time>[^ ]*) \[(?<proxy_upstream_name>[^ ]*)\] (?<proxy_alternative_upstream_name>[^ ]*) (?<upstream_addr>[^ ]*) (?<upstream_response_length>[^ ]*) (?<upstream_response_time>[^ ]*) (?<upstream_status>[^ ]*) (?<req_id>[^ ]*)/
+        time_key time
+        time_format %d/%b/%Y:%H:%M:%S %z
+      </parse>    
+    </filter>
+    
+    <filter $tag(ingress.other)>
+      @type parser
+      reserve_data true
+      hash_value_field log
+      key_name log
+      <parse>
+        @type regexp
+        expression /^.(?<time>\d{4} \d{2}:\d{2}:\d{2}.[^ ]*) (?<error>[^\d]*(\d+)) (?<source>.*?)\] (?<message>.*?)\"$/ 
+        time_key time
+        time_format %m%d %H:%M:%S
+      </parse>
+    </filter>
+      
+    <match $tag(ingress.**)>
+      @type es
+      application_name fluentd
+      include_timestamp true
+      flush_interval 10s
+      index_name {{ .Release.Namespace }}_ingress-controller
+      index_date_pattern ""
+      index_separator _
+      enable_ilm true
+      ilm_policy_overwrite true
+      ilm_policy_id {{ .Release.Namespace }}_ingress-controller
+      ilm_policy {"policy":{"phases":{"hot":{"min_age":"0ms","actions":{"rollover":{"max_age":"1d"}}},"delete":{"min_age":"30d","actions":{"delete":{}}}}}}
+      template_name fluentd
+      template_file /fluentd/etc/templates/fluentd-template.json
+      use_legacy_template false
+      template_overwrite true
+      customize_template {"<<pattern>>": "{{ .Release.Namespace }}_ingress-controller*", "<<shard>>": "3", "<<replica>>": "1"}
+    </match>

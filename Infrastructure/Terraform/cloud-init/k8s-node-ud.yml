@@ -1,0 +1,4 @@
+#cloud-config
+bootcmd:
+ - cloud-init-per once remove-machine-id rm /etc/machine-id
+ - cloud-init-per once generate-machine-id systemd-machine-id-setup

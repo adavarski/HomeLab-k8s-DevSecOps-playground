@@ -1,0 +1,11 @@
+# Ansible vars_file containing variable values for the setup
+
+k8s_control_plane_host: 10.0.200.18
+k8s_control_plane_port: 443
+k8s_api_host: 10.0.200.18
+k8s_cluster_name: dev-cluster
+
+cluster_pool_ipv4_cidr: "172.20.0.0/15"
+pod_pool_ipv4_cidr: "172.20.0.0/16"
+service_pool_ipv4_cidr: "172.21.0.0/16"
+

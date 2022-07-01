@@ -1,0 +1,34 @@
+---
+- name: Verify if br_netfilter module exists
+  command: "modinfo br_netfilter"
+  register: modinfo_br_netfilter
+  failed_when: modinfo_br_netfilter.rc not in [0, 1]
+  changed_when: false
+
+- name: Verify br_netfilter module path exists
+  file:
+    path: /etc/modules-load.d
+    state: directory
+    mode: 0755
+
+- name: Enable br_netfilter module
+  modprobe:
+    name: br_netfilter
+    state: present
+  when: modinfo_br_netfilter.rc == 0
+
+- name: Persist br_netfilter module
+  copy:
+    dest: /etc/modules-load.d/br_netfilter.conf
+    content: br_netfilter
+    mode: 0644
+  when: modinfo_br_netfilter.rc == 0
+
+- ansible.posix.sysctl:
+    name: "{{ item }}"
+    value: '1'
+    state: present
+    reload: yes
+  with_items:
+    - net.bridge.bridge-nf-call-iptables
+    - net.bridge.bridge-nf-call-ip6tables

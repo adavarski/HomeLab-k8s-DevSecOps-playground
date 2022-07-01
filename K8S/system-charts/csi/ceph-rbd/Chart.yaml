@@ -1,0 +1,11 @@
+apiVersion: v2
+name: ceph-rbd
+description: Complete Ceph RBD functionality
+version: 0.1.0
+kubeVersion: v1.23.4
+dependencies:
+  - name: ceph-csi-rbd
+    version: 3.3.1
+    repository: https://ceph.github.io/csi-charts
+    alias: cephCsiRbd
+appVersion: v3.3.1

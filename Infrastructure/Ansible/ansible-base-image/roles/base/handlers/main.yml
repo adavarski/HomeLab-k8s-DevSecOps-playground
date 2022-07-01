@@ -1,0 +1,11 @@
+---
+- name: Remove cloud-init dpkg config
+  ansible.builtin.file:
+    name: /etc/cloud/cloud.cfg.d/90_dpkg.cfg
+    state: absent
+
+- name: Reconfigure cloud-init
+  ansible.builtin.command: dpkg-reconfigure -f noninteractive cloud-init
+
+- name: Reset cloud-init
+  ansible.builtin.command: cloud-init clean -l

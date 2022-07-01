@@ -1,0 +1,10 @@
+network:
+  version: 2
+  ethernets:
+    ens19:
+      dhcp4: true
+      dhcp4-overrides:
+        use-dns: false
+        use-ntp: false
+        use-routes: false
+        use-domains: false

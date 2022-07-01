@@ -1,0 +1,118 @@
+---
+- name: create directory for kubeadm
+  file:
+    path: /etc/kubeadm
+    state: directory
+    mode: '0755'
+
+- name: upload kubeadm configuration file
+  template:
+    src: kubeadm.conf.j2
+    dest: /etc/kubeadm/kubeadm.conf
+    mode: 0755
+    owner: root
+  run_once: yes
+
+- name: check if kubernetes files already exist on first host
+  stat:
+    path: /etc/kubernetes/manifests/kube-apiserver.yaml
+  register: stat_result
+  run_once: yes
+  
+- name: test
+  debug:
+    msg: "{{ stat_result.stat.exists }}"
+  run_once: yes
+
+- name: start kubernetes on first node
+  shell: kubeadm init --config /etc/kubeadm/kubeadm.conf --skip-phases=addon/kube-proxy
+  when: not stat_result.stat.exists
+  run_once: yes
+
+- name: check that kubernetes is already running
+  wait_for:
+    host: "{{ k8s_control_plane_host }}"
+    port: "{{ k8s_control_plane_port }}"
+    delay: 5
+    connect_timeout: 1
+  run_once: yes
+
+- name: download the admin.conf file
+  fetch:
+    src: /etc/kubernetes/admin.conf
+    dest: admin.conf
+    flat: yes
+  run_once: yes
+
+- name: make sure .kube directory exists
+  file:
+    path: "/root/.kube"
+    state: directory
+  when: inventory_hostname in groups['masters']
+
+- name: copy admin.conf
+  copy:
+    src: admin.conf
+    dest: /root/.kube/config
+  when: inventory_hostname in groups['masters']
+
+- name: now upload the certificates to join the remaining nodes
+  shell: kubeadm init phase upload-certs --upload-certs --config=/etc/kubeadm/kubeadm.conf
+  register: secret_res
+  run_once: yes
+  changed_when: false
+
+- name: get the token hash
+  shell: openssl x509 -pubkey -in /etc/kubernetes/pki/ca.crt | openssl rsa -pubin -outform der 2>/dev/null | openssl dgst -sha256 -hex | sed 's/^.* //'
+  register: hash_res
+  run_once: yes
+  changed_when: false
+
+- name: generate a joining token
+  shell: kubeadm token create
+  register: token_res
+  run_once: yes
+  changed_when: false
+
+- name: set the certificate secret
+  set_fact:
+    certificate_secret: "{{secret_res.stdout_lines[2] }}"
+    certificate_hash: "{{ hash_res.stdout }}"
+    joining_token: "{{ token_res.stdout }}"
+  run_once: yes
+
+- name: check if kubernetes files already exist on first host
+  stat:
+    path: /etc/kubernetes/manifests/kube-apiserver.yaml
+  register: stat_result
+  when: inventory_hostname in groups['masters'] and inventory_hostname != groups['masters'][0]
+
+- name: upload kubeadm configuration file
+  template:
+    src: kubeadm-master-join.conf.j2
+    dest: /etc/kubeadm/kubeadm.conf
+    mode: 0755
+    owner: root
+  when: inventory_hostname in groups['masters'] and inventory_hostname != groups['masters'][0] and not stat_result.stat.exists
+
+- name: join the remaining master nodes
+  shell: kubeadm join --config=/etc/kubeadm/kubeadm.conf
+  when: inventory_hostname in groups['masters'] and inventory_hostname != groups['masters'][0] and not stat_result.stat.exists
+
+- name: check if kubernetes files already exist on the host
+  stat:
+    path: /etc/kubernetes/kubelet.conf
+  register: stat_result
+  when: inventory_hostname in groups['workers']
+
+- name: upload kubeadm configuration file
+  template:
+    src: kubeadm-worker-join.conf.j2
+    dest: /etc/kubeadm/kubeadm.conf
+    mode: 0755
+    owner: root
+  when: inventory_hostname in groups['workers'] and not stat_result.stat.exists
+
+- name: join the remaining worker nodes
+  shell: kubeadm join --config=/etc/kubeadm/kubeadm.conf
+  when: inventory_hostname in groups['workers'] and not stat_result.stat.exists

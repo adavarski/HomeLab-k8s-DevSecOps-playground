@@ -1,0 +1,34 @@
+---
+- name: Copy Kubernetes GPG key
+  ansible.builtin.copy:
+    src: '{{ kubernetes_key_location.rsplit("/", 1)[1] }}'
+    dest: '{{ kubernetes_key_location.rsplit("/", 1)[0] }}'
+    mode: '0644'
+
+- name: Copy Kubernetes repository from template
+  ansible.builtin.template:
+    src: kubernetes.list
+    dest: /etc/apt/sources.list.d/
+    mode: '0644'
+
+
+- name: Install Kubernetes packages:kubelet
+  ansible.builtin.apt:
+    update_cache: yes
+    name: kubelet={{ kubernetes_version }}
+
+- name: Install Kubernetes packages:kubectl
+  ansible.builtin.apt:
+    update_cache: yes
+    name: kubectl={{ kubernetes_version }}
+
+- name: Install Kubernetes packages:kubeadm
+  ansible.builtin.apt:
+    update_cache: yes
+    name: kubeadm={{ kubernetes_version }}
+
+- name: Hold Kubernetes packages
+  ansible.builtin.dpkg_selections:
+    name: '{{ item }}'
+    selection: hold
+  loop: '{{ kubernetes_packages }}'
