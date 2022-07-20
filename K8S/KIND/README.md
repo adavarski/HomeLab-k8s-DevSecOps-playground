@@ -159,7 +159,8 @@ devsecops-worker          Ready    <none>          4h56m   v1.24.0   172.17.0.2 
 
 ### Ingress NGINX (other options: Ingress Kong/Contour/Ambassador)
 
-```$ kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/kind/deploy.yaml
+$ kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/kind/deploy.yaml
+```
 namespace/ingress-nginx created
 serviceaccount/ingress-nginx created
 serviceaccount/ingress-nginx-admission created
