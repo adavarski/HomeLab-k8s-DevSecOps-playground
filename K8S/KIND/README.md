@@ -228,6 +228,124 @@ bar
 $ curl -s 127.0.0.1/foo
 foo
 
+### Installing Keycloak on Kubernetes (Ingress example)
+
+$ kubectl create ns keycloak
+
+$ cat keycloak.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: keycloak
+  namespace: keycloak
+  labels:
+    app: keycloak
+spec:
+  ports:
+  - name: http
+    port: 8080
+    targetPort: 8080
+  selector:
+    app: keycloak
+  # type: LoadBalancer
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: keycloak-pvc
+  namespace: keycloak
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 8Gi
+  # storageClassName: standard
+  volumeMode: Filesystem
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: keycloak
+  namespace: keycloak
+  labels:
+    app: keycloak
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: keycloak
+  template:
+    metadata:
+      labels:
+        app: keycloak
+    spec:
+      containers:
+      - name: keycloak
+        image: quay.io/keycloak/keycloak:15.0.2
+        env:
+        - name: KEYCLOAK_USER
+          value: "admin"
+        - name: KEYCLOAK_PASSWORD
+          value: "admin"
+        - name: PROXY_ADDRESS_FORWARDING
+          value: "true"
+        ports:
+        - name: http
+          containerPort: 8080
+        - name: https
+          containerPort: 8443
+        readinessProbe:
+          httpGet:
+            path: /auth/realms/master
+            port: 8080
+        volumeMounts:
+        - mountPath: /opt/jboss/keycloak/standalone/data
+          name: storage
+      volumes:
+      - name: storage  
+        persistentVolumeClaim:
+          claimName: keycloak-pvc
+
+$ kubectl allpy -f ./keycloak.yaml --namespace keycloak
+$ kubectl get pods -n keycloak
+
+$ cat keycloak-ingress.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: keycloak
+  namespace: keycloak
+spec:
+  tls:
+    - hosts:
+      - KEYCLOAK_HOST
+  rules:
+  - host: KEYCLOAK_HOST
+    http:
+      paths:
+      - backend:
+          service:
+            name: keycloak
+            port:
+              number: 8080
+        path: /
+        pathType: ImplementationSpecific
+        
+Note: replace the KEYCLOAK_HOST string with the keycloak.<THE_IP_ADDRESS_OF_YOUR_LAPTOP>.nip.io string. There are two places in the file where you need to put this new string. (keycloak.192.168.1.100.nip.io for example)
+
+Example: $ nslookup keycloak.192.168.1.100.nip.io
+Server:		192.168.1.100
+Address:	192.168.1.100#53
+
+Non-authoritative answer:
+Name:	keycloak.192.168.1.100.nip.io
+Address: 192.168.1.100
+
+
+$ kubectl apply -f ./keycloak-ingress.yaml --namespace keycloak
+$ kubectl get ingress --namespace keycloak
+
 ```
 
 ### Network Policy (Example: Ingress)
