@@ -1088,10 +1088,9 @@ $ kubectl get secret --namespace prometheus prometheus-grafana -o jsonpath="{.da
 $ export POD_NAME=$(kubectl get pods --namespace prometheus -l "app.kubernetes.io/name=grafana,app.kubernetes.io/instance=prometheus" -o jsonpath="{.items[0].metadata.name}")
 $ kubectl --namespace prometheus port-forward $POD_NAME 3000
 
-http://localhost:300
+http://localhost:3000
 
 ```
-
 
 ### Clean environment
 
