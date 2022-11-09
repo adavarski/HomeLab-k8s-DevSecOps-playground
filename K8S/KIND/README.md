@@ -1072,6 +1072,26 @@ metallb-system       controller-7476b58756-sfdm7                       1/1     R
 metallb-system       speaker-rnrhs                                     1/1     Running     0              97m
 
 ```
+### Monitoring: Prometheus
+```
+Ref: https://github.com/kubernetes-sigs/kind/issues/398
+$ helm repo add metrics-server https://kubernetes-sigs.github.io/metrics-server/
+$ helm repo update
+$ helm upgrade --install --set args={--kubelet-insecure-tls} metrics-server metrics-server/metrics-server --namespace kube-system
+
+cd ../system-charts/monitoring/prometheus
+$ helm dependency update .
+$ helm install prometheus . --render-subchart-notes -n prometheus --create-namespace
+$ kubectl get ns
+$ kubectl --namespace prometheus get pods -l "release=prometheus"
+$ kubectl get secret --namespace prometheus prometheus-grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
+$ export POD_NAME=$(kubectl get pods --namespace prometheus -l "app.kubernetes.io/name=grafana,app.kubernetes.io/instance=prometheus" -o jsonpath="{.items[0].metadata.name}")
+$ kubectl --namespace prometheus port-forward $POD_NAME 3000
+
+http://localhost:300
+
+```
+
 
 ### Clean environment
 
