@@ -1072,9 +1072,10 @@ metallb-system       controller-7476b58756-sfdm7                       1/1     R
 metallb-system       speaker-rnrhs                                     1/1     Running     0              97m
 
 ```
-### Monitoring: Prometheus
+### Monitoring: Prometheus/Grafana/etc.
 ```
 Ref: https://github.com/kubernetes-sigs/kind/issues/398
+$ cd ../system-charts/monitoring/metrics-server
 $ helm repo add metrics-server https://kubernetes-sigs.github.io/metrics-server/
 $ helm repo update
 $ helm upgrade --install --set args={--kubelet-insecure-tls} metrics-server metrics-server/metrics-server --namespace kube-system
